@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rituel — le carnet d'habitudes qui pousse avec vous</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{ink:'#14110f',paper:'#f3ece0',moss:'#2f4a2c',lime:'#c8f169',ember:'#ff5b2e',clay:'#e7dccb'},fontFamily:{display:['"Fraunces"','serif'],sans:['"Inter Tight"','sans-serif'],mono:['"JetBrains Mono"','monospace']}}}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,600;9..144,900&family=Inter+Tight:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css">
+    <meta name="description" content="Rituel">
+</head>
+<body class="bg-paper text-ink font-sans antialiased overflow-x-hidden">
+<div id="app" class="min-h-screen">
+<style>
+@media (prefers-reduced-motion: no-preference) { @supports (animation-timeline: view()) { .reveal { animation: reveal both cubic-bezier(0.16, 1, 0.3, 1); animation-timeline: view(); animation-range: entry 0% entry 90%; } } } @keyframes reveal { from { opacity: 0; transform: translateY(3rem) scale(0.98); } to { opacity: 1; transform: none; } }
+body{background-image:radial-gradient(circle at 85% -10%,rgba(200,241,105,.45),transparent 40%),radial-gradient(circle at -10% 60%,rgba(255,91,46,.15),transparent 40%)}
+.grain{position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.07;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+@keyframes up{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+@keyframes clip{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
+@keyframes marq{to{transform:translateX(-50%)}}
+@keyframes leaf{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--x),var(--y)) rotate(var(--r))}}
+@keyframes drift{50%{transform:translate(20px,-14px) rotate(6deg)}}
+.in{animation:up .9s cubic-bezier(.16,1,.3,1) both}
+.imgclip{animation:clip 1.4s cubic-bezier(.16,1,.3,1) .3s both}
+.pop{animation:pop .45s cubic-bezier(.16,1,.3,1)}
+.marq{animation:marq 30s linear infinite}
+.leafp{position:fixed;pointer-events:none;z-index:70;animation:leaf .9s cubic-bezier(.16,1,.3,1) forwards}
+.blob{animation:drift 9s ease-in-out infinite}
+.hcard{transition:transform .5s cubic-bezier(.16,1,.3,1),box-shadow .5s}
+.hcard:hover{transform:translateY(-4px);box-shadow:0 20px 40px -20px rgba(47,74,44,.5)}
+.tab[aria-selected=true]{background:#14110f;color:#c8f169}
+.cell{transition:transform .3s cubic-bezier(.16,1,.3,1)}
+.cell:hover{transform:scale(1.35)}
+.view{animation:up .6s cubic-bezier(.16,1,.3,1) both}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #ff5b2e;outline-offset:3px}
+</style>
+<div class="grain"></div>
+
+<header class="max-w-6xl mx-auto px-5 pt-6 flex items-center justify-between gap-3">
+  <div class="flex items-center gap-2 font-display text-2xl font-900"><span class="w-9 h-9 rounded-full bg-moss text-lime grid place-items-center text-base"><i class="fa-solid fa-seedling"></i></span>Rituel<span class="text-ember">.</span></div>
+  <nav class="flex gap-1 bg-white/60 backdrop-blur border border-ink/10 rounded-full p-1 text-sm font-medium" role="tablist">
+    <button class="tab px-3 sm:px-4 py-2 rounded-full transition" data-v="today" aria-selected="true">Aujourd'hui</button>
+    <button class="tab px-3 sm:px-4 py-2 rounded-full transition" data-v="garden" aria-selected="false">Jardin</button>
+    <button class="tab px-3 sm:px-4 py-2 rounded-full transition hidden sm:block" data-v="stats" aria-selected="false">Bilan</button>
+  </nav>
+</header>
+
+<section class="max-w-6xl mx-auto px-5 pt-8 sm:pt-12 grid lg:grid-cols-[1.3fr_1fr] gap-8 items-end">
+  <div>
+    <p class="font-mono text-xs uppercase tracking-[.25em] text-moss in" id="dateLbl">—</p>
+    <h1 class="font-display font-900 leading-[.85] tracking-[-.04em] text-[clamp(3.2rem,10vw,8.5rem)] mt-3">
+      <span class="block in" style="animation-delay:.1s">Petits gestes,</span>
+      <span class="block in italic font-300 text-moss" style="animation-delay:.22s">grandes <span class="text-ember not-italic font-900">racines.</span></span>
+    </h1>
+    <div class="mt-6 flex flex-wrap items-center gap-4 in" style="animation-delay:.35s">
+      <div class="relative w-24 h-24">
+        <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90"><circle cx="50" cy="50" r="42" fill="none" stroke="#e7dccb" stroke-width="10"></circle><circle id="ring" cx="50" cy="50" r="42" fill="none" stroke="#2f4a2c" stroke-width="10" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="264" style="transition:stroke-dashoffset 1s cubic-bezier(.16,1,.3,1)"></circle></svg>
+        <div class="absolute inset-0 grid place-items-center font-display text-2xl font-900" id="pct">0%</div>
+      </div>
+      <p class="max-w-xs text-ink/70" id="mood">Chaque case cochée arrose votre jardin.</p>
+    </div>
+  </div>
+  <div class="relative in" style="animation-delay:.2s">
+    <div class="blob absolute -top-6 -left-6 w-28 h-28 rounded-full bg-lime/70 blur-xl"></div>
+    <img class="imgclip relative w-full aspect-[4/3] object-cover rounded-[3rem_3rem_3rem_.5rem] shadow-2xl shadow-moss/30" src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&amp;fit=crop&amp;w=900&amp;q=80" alt="Jeunes pousses vertes dans un jardin sous le soleil">
+    <div class="absolute -bottom-5 right-4 bg-ink text-paper rounded-2xl px-4 py-3 font-mono text-xs shadow-xl"><span class="text-lime text-lg font-600" id="bestStreak">0</span> jours · meilleure série</div>
+  </div>
+</section>
+
+<div class="mt-14 bg-moss text-lime py-3 overflow-hidden -rotate-1 border-y-2 border-ink">
+  <div class="marq flex w-max gap-10 font-display italic text-2xl whitespace-nowrap">
+    <span>✺ On ne rate jamais deux fois de suite</span><span>✺ 1% chaque jour</span><span>✺ La constance bat l'intensité</span><span>✺ Arrosez, ne forcez pas</span>
+    <span>✺ On ne rate jamais deux fois de suite</span><span>✺ 1% chaque jour</span><span>✺ La constance bat l'intensité</span><span>✺ Arrosez, ne forcez pas</span>
+  </div>
+</div>
+
+<main class="max-w-6xl mx-auto px-5 py-12">
+  <section id="v-today" class="view">
+    <div class="flex flex-wrap items-end justify-between gap-4 mb-6">
+      <h2 class="font-display text-4xl sm:text-5xl font-600 tracking-tight reveal">Rituels du jour</h2>
+      <button id="openAdd" class="group bg-ember text-white rounded-full px-5 py-3 font-medium hover:-translate-y-0.5 hover:shadow-lg hover:shadow-ember/40 transition"><i class="fa-solid fa-plus group-hover:rotate-90 transition"></i> Planter une habitude</button>
+    </div>
+    <div id="list" class="grid md:grid-cols-2 gap-4"></div>
+  </section>
+
+  <section id="v-garden" class="view hidden">
+    <h2 class="font-display text-4xl sm:text-5xl font-600 tracking-tight">Le jardin <span class="italic text-moss">des 12 dernières semaines</span></h2>
+    <p class="text-ink/60 mt-2 mb-8">Touchez une case pour corriger un jour oublié.</p>
+    <div id="garden" class="space-y-6"></div>
+  </section>
+
+  <section id="v-stats" class="view hidden">
+    <h2 class="font-display text-4xl sm:text-5xl font-600 tracking-tight mb-8">Bilan</h2>
+    <div id="stats" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></div>
+    <div class="mt-6 bg-ink text-paper rounded-3xl p-6">
+      <p class="font-mono text-xs uppercase tracking-widest text-lime mb-4">7 derniers jours</p>
+      <div id="bars" class="flex items-end gap-2 sm:gap-4 h-40"></div>
+    </div>
+    <button id="reset" class="mt-6 text-sm underline decoration-ember underline-offset-4 hover:text-ember transition">Réinitialiser avec les données d'exemple</button>
+  </section>
+</main>
+
+<footer class="max-w-6xl mx-auto px-5 pb-10 font-mono text-xs text-ink/50 flex justify-between"><span>Rituel © 2026</span><span>Sauvegardé localement <i class="fa-solid fa-lock"></i></span></footer>
+
+<dialog id="dlg" class="rounded-3xl p-0 w-[min(92vw,440px)] backdrop:bg-ink/60 backdrop:backdrop-blur-sm">
+  <form id="addForm" class="p-6 bg-paper space-y-4" novalidate="">
+    <h3 class="font-display text-3xl font-900">Nouvelle graine</h3>
+    <label class="block text-sm font-medium">Nom<input id="fName" maxlength="40" class="mt-1 w-full rounded-xl border border-ink/20 bg-white px-4 py-3" placeholder="Ex. Lire 20 pages"></label>
+    <p id="err" class="text-ember text-sm hidden">Donnez un nom d'au moins 2 lettres.</p>
+    <label class="block text-sm font-medium">Icône
+      <select id="fIcon" class="mt-1 w-full rounded-xl border border-ink/20 bg-white px-4 py-3">
+        <option value="fa-book-open">Lecture</option><option value="fa-person-running">Course</option><option value="fa-glass-water">Eau</option><option value="fa-spa">Méditation</option><option value="fa-pen-nib">Écriture</option><option value="fa-moon">Sommeil</option><option value="fa-carrot">Alimentation</option>
+      </select></label>
+    <div class="flex gap-2 justify-end pt-2">
+      <button type="button" id="cancel" class="px-4 py-3 rounded-full hover:bg-clay transition">Annuler</button>
+      <button class="px-5 py-3 rounded-full bg-moss text-lime font-medium hover:-translate-y-0.5 transition">Planter</button>
+    </div>
+  </form>
+</dialog>
+<div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-ink text-lime rounded-full px-5 py-3 text-sm font-medium z-50 transition duration-500 opacity-0 translate-y-4 pointer-events-none"></div>
+
+<script>
+(()=>{
+const K='rituel-v1',D=864e5;
+const key=d=>{const x=new Date(d);return x.getFullYear()+'-'+(x.getMonth()+1)+'-'+x.getDate()};
+const today=new Date();today.setHours(0,0,0,0);
+function seed(){const hs=[['Lire 20 pages','fa-book-open',.8],['Courir 30 minutes','fa-person-running',.55],['Boire 2 L d\'eau','fa-glass-water',.9],['Méditer 10 minutes','fa-spa',.65]];
+return hs.map((h,i)=>{const done={};for(let j=1;j<84;j++)if(Math.random()<h[2])done[key(today-j*D)]=1;if(i%2)done[key(today)]=1;return{id:Date.now()+i,name:h[0],icon:h[1],done}})}
+let S;try{S=JSON.parse(localStorage.getItem(K))}catch(e){}if(!Array.isArray(S))S=seed();
+const save=()=>localStorage.setItem(K,JSON.stringify(S));
+const $=s=>document.querySelector(s);
+const streak=h=>{let n=0,d=+today;if(!h.done[key(d)])d-=D;while(h.done[key(d)]){n++;d-=D}return n};
+const best=h=>{let b=0,c=0;for(let j=83;j>=0;j--){if(h.done[key(today-j*D)]){c++;b=Math.max(b,c)}else c=0}return b};
+function toast(t){const e=$('#toast');e.textContent=t;e.style.opacity=1;e.style.transform='translate(-50%,0)';clearTimeout(e._t);e._t=setTimeout(()=>{e.style.opacity=0;e.style.transform='translate(-50%,1rem)'},1800)}
+function burst(x,y){for(let i=0;i<10;i++){const l=document.createElement('i');l.className='fa-solid fa-leaf leafp text-moss';l.style.left=x+'px';l.style.top=y+'px';l.style.setProperty('--x',(Math.random()*160-80)+'px');l.style.setProperty('--y',(-Math.random()*120-20)+'px');l.style.setProperty('--r',(Math.random()*360)+'deg');document.body.appendChild(l);setTimeout(()=>l.remove(),950)}}
+$('#dateLbl').textContent=today.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+function header(){const k=key(today),n=S.filter(h=>h.done[k]).length,p=S.length?Math.round(n/S.length*100):0;
+$('#pct').textContent=p+'%';$('#ring').style.strokeDashoffset=264-264*p/100;
+$('#mood').textContent=p===100?'Jardin parfait aujourd\'hui. Savourez.':p>=50?`${n} sur ${S.length} — la moitié du chemin est derrière vous.`:S.length?`${n} sur ${S.length} — une seule case suffit pour lancer l'élan.`:'Plantez votre première habitude.';
+$('#bestStreak').textContent=S.reduce((m,h)=>Math.max(m,best(h)),0)}
+function list(){const k=key(today);$('#list').innerHTML=S.length?S.map((h,i)=>{const on=h.done[k],s=streak(h);const week=[...Array(7)].map((_,j)=>`<span class="w-2.5 h-2.5 rounded-full ${h.done[key(today-(6-j)*D)]?'bg-moss':'bg-clay'}"></span>`).join('');
+return `<article class="hcard view rounded-3xl p-5 flex items-center gap-4 border ${on?'bg-lime border-moss':'bg-white/70 border-ink/10'}" style="animation-delay:${i*.07}s">
+<button data-t="${h.id}" aria-label="Cocher ${h.name}" class="w-14 h-14 shrink-0 rounded-2xl grid place-items-center text-xl transition ${on?'bg-moss text-lime':'bg-clay text-moss hover:bg-moss hover:text-lime'}"><i class="fa-solid ${on?'fa-check':h.icon}"></i></button>
+<div class="flex-1 min-w-0"><h3 class="font-display text-xl font-600 truncate ${on?'line-through decoration-ember decoration-2':''}">${h.name.replace(/</g,'&lt;')}</h3><div class="flex items-center gap-1 mt-2">${week}</div></div>
+<div class="text-right"><div class="font-display text-3xl font-900 ${s>=7?'text-ember':''}">${s}</div><div class="font-mono text-[10px] uppercase text-ink/50">jours <i class="fa-solid fa-fire"></i></div></div>
+<button data-del="${h.id}" aria-label="Supprimer" class="w-8 h-8 rounded-full text-ink/30 hover:text-ember hover:bg-ember/10 transition"><i class="fa-solid fa-xmark"></i></button></article>`}).join(''):'<p class="text-ink/60 font-display text-2xl italic">Le sol est prêt. Plantez une graine.</p>'}
+function garden(){$('#garden').innerHTML=S.map(h=>`<div class="bg-white/70 rounded-3xl p-5 border border-ink/10"><div class="flex justify-between mb-3"><h3 class="font-display text-xl font-600"><i class="fa-solid ${h.icon} text-moss mr-2"></i>${h.name.replace(/</g,'&lt;')}</h3><span class="font-mono text-xs text-ink/50">record ${best(h)} j</span></div><div class="grid grid-flow-col grid-rows-7 gap-1 w-max max-w-full overflow-x-auto pb-1">${[...Array(84)].map((_,j)=>{const d=today-(83-j)*D,k=key(d);return`<button data-g="${h.id}" data-k="${k}" title="${new Date(d).toLocaleDateString('fr-FR')}" class="cell w-3 h-3 sm:w-4 sm:h-4 rounded-[4px] ${h.done[k]?'bg-moss':'bg-clay'}"></button>`}).join('')}</div></div>`).join('')}
+function stats(){const tot=S.reduce((a,h)=>a+Object.keys(h.done).length,0),rate=S.length?Math.round(tot/(S.length*84)*100):0;const top=S.slice().sort((a,b)=>streak(b)-streak(a))[0];
+const c=[['Coches totales',tot,'bg-lime'],['Taux de réussite',rate+'%','bg-white/70'],['Habitudes',S.length,'bg-white/70'],['En feu',top?top.name:'—','bg-ember text-white']];
+$('#stats').innerHTML=c.map(x=>`<div class="hcard ${x[2]} rounded-3xl p-5 border border-ink/10"><p class="font-mono text-[10px] uppercase tracking-widest opacity-70">${x[0]}</p><p class="font-display text-2xl sm:text-4xl font-900 mt-2 break-words">${x[1]}</p></div>`).join('');
+$('#bars').innerHTML=[...Array(7)].map((_,j)=>{const d=today-(6-j)*D,n=S.filter(h=>h.done[key(d)]).length,p=S.length?n/S.length*100:0;return`<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end"><div class="w-full rounded-t-xl bg-lime" style="height:${Math.max(p,4)}%"></div><span class="font-mono text-[10px]">${new Date(d).toLocaleDateString('fr-FR',{weekday:'short'})}</span></div>`}).join('')}
+const all=()=>{header();list();garden();stats()};all();
+document.addEventListener('click',e=>{const t=e.target.closest('[data-t]'),g=e.target.closest('[data-g]'),dl=e.target.closest('[data-del]'),tb=e.target.closest('.tab');
+if(t){const h=S.find(x=>x.id==t.dataset.t),k=key(today);if(h.done[k]){delete h.done[k];toast('Décoché. Demain est un autre jour.')}else{h.done[k]=1;burst(e.clientX,e.clientY);toast(`+1 · série de ${streak(h)} jour(s) 🌱`)}save();all();const nb=document.querySelector(`[data-t="${h.id}"]`);nb&&nb.classList.add('pop')}
+if(g){const h=S.find(x=>x.id==g.dataset.g);h.done[g.dataset.k]?delete h.done[g.dataset.k]:h.done[g.dataset.k]=1;save();all();toast('Jardin mis à jour')}
+if(dl){const h=S.find(x=>x.id==dl.dataset.del);if(confirm(`Arracher « ${h.name} » ?`)){S=S.filter(x=>x!==h);save();all();toast('Habitude retirée')}}
+if(tb){document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b===tb));['today','garden','stats'].forEach(v=>{const el=$('#v-'+v);el.classList.toggle('hidden',v!==tb.dataset.v);if(v===tb.dataset.v){el.classList.remove('view');void el.offsetWidth;el.classList.add('view')}})}});
+const dlg=$('#dlg');$('#openAdd').onclick=()=>{$('#fName').value='';$('#err').classList.add('hidden');dlg.showModal()};$('#cancel').onclick=()=>dlg.close();
+$('#addForm').onsubmit=e=>{e.preventDefault();const n=$('#fName').value.trim();if(n.length<2){$('#err').classList.remove('hidden');$('#fName').focus();return}S.push({id:Date.now(),name:n,icon:$('#fIcon').value,done:{}});save();dlg.close();all();toast('Graine plantée : '+n)};
+$('#reset').onclick=()=>{if(confirm('Remplacer vos données par l\'exemple ?')){S=seed();save();all();toast('Jardin replanté')}};
+})();
+</script>
+</div>
+</body>
+</html>
